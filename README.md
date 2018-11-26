@@ -58,6 +58,9 @@ enum Position {
 proxy.js:
 
 ```js
+const express = require('express');
+const watcher = require('grpc-echo');
+
 const app = express();
 
 const clientConf = {
