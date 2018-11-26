@@ -79,7 +79,7 @@ client.js:
 
 ```js
 const {body} = await = request.post({
-  url: `localhost:3000/gnat.helloworld.Greeter/SayHello`,
+  url: `localhost:3000/proxy/gnat.helloworld.Greeter/SayHello`, // '<host>:<port>/<rootUrl>/proxy/<servicePath>/<methodName>'
   body: {args: {name: 'World'}, /* metadata: {}, callOpts: {} */},
 });
 // {message:"Hello World"}

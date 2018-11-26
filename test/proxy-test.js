@@ -76,35 +76,41 @@ describe('watcher', () => {
   afterEach(() => server.tryShutdown());
   afterEach(() => client.close());
 
-  it('proxy', async () => {
-    const name = random.word();
-    const ret = await req({
-      url: `${baseUrl}/gnat.helloworld.Greeter/SayHello`,
-      body: {args: {name}},
-      expectation: {statusCode: 200}
+  context('proxy', () => {
+    let root;
+    beforeEach(() => {
+      root = `${baseUrl}/proxy`;
     });
-    expect(ret).to.have.property('body').to.deep.equal({result: {message: `Hello ${name}`}});
-  });
+    it('proxy', async () => {
+      const name = random.word();
+      const ret = await req({
+        url: `${root}/gnat.helloworld.Greeter/SayHello`,
+        body: {args: {name}},
+        expectation: {statusCode: 200}
+      });
+      expect(ret).to.have.property('body').to.deep.equal({result: {message: `Hello ${name}`}});
+    });
 
-  it('when deadline exceeded', async () => {
-    const name = random.word();
-    const ret = await req({
-      url: `${baseUrl}/gnat.helloworld.Greeter/SayHello`,
-      body: {args: {name}, callOpts: {deadline: 0}},
-      expectation: {statusCode: 500}
+    it('when deadline exceeded', async () => {
+      const name = random.word();
+      const ret = await req({
+        url: `${root}/gnat.helloworld.Greeter/SayHello`,
+        body: {args: {name}, callOpts: {deadline: 0}},
+        expectation: {statusCode: 500}
+      });
+      expect(ret).to.have.deep.nested.property('body.error.code').to.equal(grpc.status.DEADLINE_EXCEEDED);
+      expect(ret).to.have.deep.nested.property('body.error.details').to.equal('Deadline Exceeded');
     });
-    expect(ret).to.have.deep.nested.property('body.error.code').to.equal(grpc.status.DEADLINE_EXCEEDED);
-    expect(ret).to.have.deep.nested.property('body.error.details').to.equal('Deadline Exceeded');
-  });
 
-  it('on respond custom error', async () => {
-    const name = random.word();
-    const ret = await req({
-      url: `${baseUrl}/gnat.helloworld.Greeter/ThrowAnErr`,
-      body: {args: {name}},
-      expectation: {statusCode: 500}
+    it('on respond custom error', async () => {
+      const name = random.word();
+      const ret = await req({
+        url: `${root}/gnat.helloworld.Greeter/ThrowAnErr`,
+        body: {args: {name}},
+        expectation: {statusCode: 500}
+      });
+      expect(ret).to.have.deep.nested.property('body.error.code').to.equal(20000);
+      expect(ret).to.have.deep.nested.property('body.error.details').to.equal(`使用了错误的名字 "${name}"，写错了写错了写错了写错了写错了写错了写错了写错了`);
     });
-    expect(ret).to.have.deep.nested.property('body.error.code').to.equal(20000);
-    expect(ret).to.have.deep.nested.property('body.error.details').to.equal(`使用了错误的名字 "${name}"，写错了写错了写错了写错了写错了写错了写错了写错了`);
   });
 });

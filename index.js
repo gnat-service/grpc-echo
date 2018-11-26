@@ -1,11 +1,11 @@
 const {Client, config: ggConfig} = require('gnat-grpc');
 const express = require('express');
-const URL = require('url');
 const bodyParser = require('body-parser');
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const camelCase = require('lodash.camelcase');
 
+const {Router} = express;
 const doResponse = (res, statusCode, json) => {
   res.writeHead(statusCode, {'Content-Type': 'application/json'});
   res.end(JSON.stringify(json));
@@ -49,11 +49,15 @@ const getRouteHandler = grpcClient => {
   };
 };
 
-const useRoute = (httpProxy, grpcClient) => httpProxy.use('/:serviceName/:methodName', getRouteHandler(grpcClient));
+const useRoutes = (httpProxy, grpcClient) => {
+  const proxy = Router();
+  proxy.post('/:serviceName/:methodName', getRouteHandler(grpcClient));
+  httpProxy.use('/proxy', proxy);
+};
 
 const initHttpProxy = ({httpProxy}) => {
   if (!httpProxy) {
-    httpProxy = express.Router();
+    httpProxy = Router();
 
     httpProxy.use(bodyParser.json());
     httpProxy.use(bodyParser.urlencoded({extended: false}));
@@ -81,7 +85,7 @@ const initGrpcClient = ({grpcClient = {}}) => {
 module.exports = function (conf = {}) {
   const httpProxy = initHttpProxy(conf);
   const grpcClient = initGrpcClient(conf);
-  useRoute(httpProxy, grpcClient);
+  useRoutes(httpProxy, grpcClient);
   httpProxy.grpcClient = grpcClient;
   return httpProxy;
 };
