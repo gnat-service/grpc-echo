@@ -1,0 +1,32 @@
+{
+  "name": "grpc-echo",
+  "version": "0.0.1",
+  "description": "A http proxied client which helps you debug your grpc backend without reflection.",
+  "main": "index.js",
+  "author": "leaf4monkey <joc98@163.com>",
+  "license": "MIT",
+  "engines": {"node": ">=10"},
+  "scripts": {
+    "prepublishOnly": "yarn test",
+    "postpublish": "sh ./bin/add-tag.sh",
+    "test": "mocha --color --recursive ./test"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^0.3.2",
+    "@grpc/proto-loader": "^0.3.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "lodash.camelcase": "^4.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "faker": "^4.1.0",
+    "gnat-grpc": "^1.0.0-beta1",
+    "grpc": "^1.16.1",
+    "mocha": "^5.2.0",
+    "supertest": "^3.3.0"
+  },
+  "peerDependencies": {
+    "gnat-grpc": "^1.0.0-beta1"
+  }
+}
