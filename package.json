@@ -1,11 +1,13 @@
 {
   "name": "grpc-echo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A http proxied client which helps you debug your grpc backend without reflection.",
   "main": "index.js",
   "author": "leaf4monkey <joc98@163.com>",
   "license": "MIT",
-  "engines": {"node": ">=10"},
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
     "prepublishOnly": "yarn test",
     "postpublish": "sh ./bin/add-tag.sh",
