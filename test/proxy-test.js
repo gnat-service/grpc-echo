@@ -44,6 +44,13 @@ describe('watcher', () => {
   let req;
   let baseUrl;
 
+  const clientConf = {
+    bindPath: `localhost:${PORT}`,
+    services: [
+      {filename: 'helloworld.proto'},
+    ]
+  };
+
   beforeEach(async () => {
     server = await Server.addServer({
       bindPath: `0.0.0.0:${PORT}`,
@@ -58,18 +65,10 @@ describe('watcher', () => {
     server.start();
   });
 
-  beforeEach(async () => {
-    client = await Client.checkoutServices({
-      bindPath: `localhost:${PORT}`,
-      services: [
-        {filename: 'helloworld.proto'},
-      ]
-    });
-  });
-
   beforeEach(() => {
     baseUrl = `/${lorem.word()}`;
-    proxy = watcher({grpcClient: client});
+    proxy = watcher({grpcClient: {clientConf}});
+    client = proxy.grpcClient;
     app.use(baseUrl, proxy);
     req = postRequest();
   });

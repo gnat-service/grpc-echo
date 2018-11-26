@@ -2,7 +2,7 @@ const {Client, config: ggConfig} = require('gnat-grpc');
 const express = require('express');
 const URL = require('url');
 const bodyParser = require('body-parser');
-const grpc = require('@grpc/grpc-js');
+const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const camelCase = require('lodash.camelcase');
 
@@ -67,7 +67,11 @@ const initGrpcClient = ({grpcClient = {}}) => {
   }
 
   const conf = grpcClient;
-  ggConfig(Object.assign({grpc, protoLoader}, conf.ggConf));
+  try {
+    ggConfig(Object.assign({grpc, protoLoader}, conf.ggConf));
+  } catch (e) {
+    // do nothing
+  }
 
   const {clientConf} = conf;
   grpcClient = Client.checkoutServicesSync(clientConf);
@@ -78,5 +82,6 @@ module.exports = function (conf = {}) {
   const httpProxy = initHttpProxy(conf);
   const grpcClient = initGrpcClient(conf);
   useRoute(httpProxy, grpcClient);
+  httpProxy.grpcClient = grpcClient;
   return httpProxy;
 };
