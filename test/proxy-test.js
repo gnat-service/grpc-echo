@@ -85,7 +85,7 @@ describe('watcher', () => {
       const name = random.word();
       const ret = await req({
         url: `${root}/gnat.helloworld.Greeter/SayHello`,
-        body: {args: {name}},
+        body: {args: {name}, debug: true},
         expectation: {statusCode: 200}
       });
       expect(ret).to.have.property('body').to.deep.equal({result: {message: `Hello ${name}`}});

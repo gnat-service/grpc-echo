@@ -11,7 +11,7 @@ const doResponse = (res, statusCode, json) => {
   res.end(JSON.stringify(json));
 };
 
-let debugOn = true;
+let debugOn;
 let reqCount = 0;
 
 const debugActivated = debug => debug || debugOn;
@@ -22,7 +22,7 @@ const time = ({debug} = {}, ...args) => debugActivated(debug) && console.time(..
 const timeEnd = ({debug} = {}, ...args) => debugActivated(debug) && console.timeEnd(...args);
 
 const getRouteHandler = grpcClient => {
-  const fn = async (req, res) => {
+  const fn = async (req, res, {reqId}) => {
     let {serviceName, methodName} = req.params;
     const {body} = req;
     const {args, metadata, callOpts} = body;
@@ -42,27 +42,28 @@ const getRouteHandler = grpcClient => {
     const argArr = callOpts ? [args, metadata || {}, callOpts] : [args, metadata, callOpts].filter(arg => arg);
 
     try {
-      time(body, `grpc request ${reqCount}`);
+      time(body, `grpc request ${reqId}`);
+      debug(`${serviceName}/${methodName}:\n  `, ...argArr);
       const result = await service[methodName](...argArr);
       debug(body, result);
       doResponse(res, 200, {result});
-      timeEnd(body, `grpc request ${reqCount}`);
+      timeEnd(body, `grpc request ${reqId}`);
     } catch (error) {
       doResponse(res, 500, {error});
       console.error(`${serviceName}/${methodName}`, error.stack);
-      timeEnd(body, `grpc request ${reqCount}`);
+      timeEnd(body, `grpc request ${reqId}`);
     }
   };
   return async (req, res) => {
-    reqCount++;
+    const reqId = reqCount++;
     try {
-      time(req.body, `request ${reqCount}`);
-      await fn(req, res);
-      timeEnd(req.body, `request ${reqCount}`);
+      time(req.body, `request ${reqId}`);
+      await fn(req, res, {reqId});
+      timeEnd(req.body, `request ${reqId}`);
     } catch (e) {
       console.error(e.stack);
       doResponse(req, 500, {error: e.toObject()});
-      timeEnd(req.body, `request ${reqCount}`);
+      timeEnd(req.body, `request ${reqId}`);
     }
   };
 };
