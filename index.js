@@ -11,10 +11,21 @@ const doResponse = (res, statusCode, json) => {
   res.end(JSON.stringify(json));
 };
 
+let debugOn = true;
+let reqCount = 0;
+
+const debugActivated = debug => debug || debugOn;
+
+const debug = ({debug} = {}, ...args) => debugActivated(debug) && console.log(...args);
+
+const time = ({debug} = {}, ...args) => debugActivated(debug) && console.time(...args);
+const timeEnd = ({debug} = {}, ...args) => debugActivated(debug) && console.timeEnd(...args);
+
 const getRouteHandler = grpcClient => {
   const fn = async (req, res) => {
     let {serviceName, methodName} = req.params;
-    const {args, metadata, callOpts} = req.body;
+    const {body} = req;
+    const {args, metadata, callOpts} = body;
     const service = grpcClient.getService(serviceName);
     const unimplemented = () =>
       doResponse(res, 500, {error: {code: grpc.status.UNIMPLEMENTED, details: 'Unimplemented'}});
@@ -31,20 +42,27 @@ const getRouteHandler = grpcClient => {
     const argArr = callOpts ? [args, metadata || {}, callOpts] : [args, metadata, callOpts].filter(arg => arg);
 
     try {
+      time(body, `grpc request ${reqCount}`);
       const result = await service[methodName](...argArr);
-      console.log(result);
+      debug(body, result);
       doResponse(res, 200, {result});
+      timeEnd(body, `grpc request ${reqCount}`);
     } catch (error) {
       doResponse(res, 500, {error});
       console.error(`${serviceName}/${methodName}`, error.stack);
+      timeEnd(body, `grpc request ${reqCount}`);
     }
   };
   return async (req, res) => {
+    reqCount++;
     try {
+      time(req.body, `request ${reqCount}`);
       await fn(req, res);
+      timeEnd(req.body, `request ${reqCount}`);
     } catch (e) {
       console.error(e.stack);
       doResponse(req, 500, {error: e.toObject()});
+      timeEnd(req.body, `request ${reqCount}`);
     }
   };
 };
@@ -83,6 +101,7 @@ const initGrpcClient = ({grpcClient = {}}) => {
 };
 
 module.exports = function (conf = {}) {
+  debugOn = conf.debug;
   const httpProxy = initHttpProxy(conf);
   const grpcClient = initGrpcClient(conf);
   useRoutes(httpProxy, grpcClient);
