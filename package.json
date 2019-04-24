@@ -1,6 +1,6 @@
 {
   "name": "grpc-echo",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "A http proxied client which helps you debug your grpc backend without reflection.",
   "main": "index.js",
   "author": "leaf4monkey <joc98@163.com>",
@@ -24,11 +24,11 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "faker": "^4.1.0",
-    "gnat-grpc": "^1.0.0-beta1",
+    "gnat-grpc": "^1.5.2",
     "mocha": "^5.2.0",
     "supertest": "^3.3.0"
   },
   "peerDependencies": {
-    "gnat-grpc": "^1.0.0-beta1"
+    "gnat-grpc": ">1.4.0"
   }
 }

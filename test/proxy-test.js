@@ -65,10 +65,10 @@ describe('watcher', () => {
     server.start();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     baseUrl = `/${lorem.word()}`;
     proxy = watcher({grpcClient: {clientConf}});
-    client = proxy.grpcClient;
+    client = await proxy.grpcClient;
     app.use(baseUrl, proxy);
     req = postRequest();
   });

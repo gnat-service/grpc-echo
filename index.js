@@ -26,9 +26,9 @@ const getRouteHandler = grpcClient => {
     let {serviceName, methodName} = req.params;
     const {body} = req;
     const {args, metadata, callOpts} = body;
-    const service = grpcClient.getService(serviceName);
-    const unimplemented = () =>
-      doResponse(res, 500, {error: {code: grpc.status.UNIMPLEMENTED, details: 'Unimplemented'}});
+    const service = (await grpcClient).getService(serviceName);
+    const unimplemented = (details = `Unimplemented service: "${serviceName}"`) =>
+      doResponse(res, 500, {error: {code: grpc.status.UNIMPLEMENTED, details}});
     if (!service) {
       return unimplemented();
     }
@@ -36,7 +36,7 @@ const getRouteHandler = grpcClient => {
       methodName = camelCase(methodName);
     }
     if (!service[methodName]) {
-      return unimplemented();
+      return unimplemented(`Unimplemented method: "${serviceName}/${methodName}"`);
     }
 
     const argArr = callOpts ? [args, metadata || {}, callOpts] : [args, metadata, callOpts].filter(arg => arg);
@@ -97,7 +97,7 @@ const initGrpcClient = ({grpcClient = {}}) => {
   }
 
   const {clientConf} = conf;
-  grpcClient = Client.checkoutServicesSync(clientConf);
+  grpcClient = Client.checkoutServices(clientConf);
   return grpcClient;
 };
 
