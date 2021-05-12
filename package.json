@@ -14,7 +14,7 @@
     "test": "mocha --color --recursive ./test"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^0.3.2",
+    "@grpc/grpc-js": "^1.1.8",
     "@grpc/proto-loader": "^0.3.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
