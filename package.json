@@ -16,8 +16,8 @@
   "dependencies": {
     "@grpc/grpc-js": "^0.3.2",
     "@grpc/proto-loader": "^0.3.0",
-    "body-parser": "^1.18.3",
-    "express": "^4.16.4",
+    "body-parser": "^1.19.2",
+    "express": "^4.17.3",
     "grpc": "^1.16.1",
     "lodash.camelcase": "^4.3.0"
   },
