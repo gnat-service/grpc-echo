@@ -18,7 +18,7 @@
     "@grpc/proto-loader": "^0.3.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "grpc": "^1.16.1",
+    "grpc": "^1.24.8",
     "lodash.camelcase": "^4.3.0"
   },
   "devDependencies": {
